@@ -1,0 +1,73 @@
+
+# Healthcare IoMT Network Segmentation
+# Conceptual example — not production-ready firewall syntax
+
+policy_name: Healthcare-IoMT-Zero-Trust-Segmentation
+version: "1.0"
+environment: Healthcare-Research-Lab
+
+network_zones:
+  administration:
+    vlan_id: 10
+    subnet: 10.10.10.0/24
+
+  clinical:
+    vlan_id: 20
+    subnet: 10.10.20.0/24
+
+  iomt_devices:
+    vlan_id: 30
+    subnet: 10.10.30.0/24
+
+  protected_ehr:
+    vlan_id: 40
+    subnet: 10.10.40.0/24
+
+firewall_policy:
+  default_action: deny
+  rules:
+    - id: 100
+      name: Allow-Clinical-EHR
+      source_zone: clinical
+      destination_zone: protected_ehr
+      protocol: tcp
+      destination_port: 443
+      action: allow
+      logging: true
+
+    - id: 110
+      name: Allow-IoMT-Clinical-Gateway
+      source_zone: iomt_devices
+      destination_zone: clinical
+      destination: approved_clinical_gateway
+      protocol: tcp
+      destination_port: 443
+      action: allow
+      logging: true
+
+    - id: 120
+      name: Deny-IoMT-Direct-EHR
+      source_zone: iomt_devices
+      destination_zone: protected_ehr
+      protocol: any
+      action: deny
+      logging: true
+
+    - id: 130
+      name: Deny-Administration-IoMT
+      source_zone: administration
+      destination_zone: iomt_devices
+      protocol: any
+      action: deny
+      logging: true
+
+monitoring:
+  send_logs_to_siem: true
+  alert_on_denied_connections: true
+  review_policy_periodically: true
+
+notes:
+  - "Use least-privilege network access."
+  - "Validate medical device communication requirements."
+  - "Test segmentation without disrupting patient care."
+  - "Require change approval before deployment."
