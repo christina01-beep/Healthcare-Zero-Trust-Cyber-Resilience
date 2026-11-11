@@ -1,0 +1,35 @@
+
+{
+  "policyName": "Healthcare-EHR-Zero-Trust-Access",
+  "description": "Illustrative adaptive access policy for healthcare EHR systems",
+  "policyType": "conceptual-example",
+  "conditions": {
+    "allowedRoles": [
+      "Physician",
+      "Nurse",
+      "Radiologist"
+    ],
+    "targetApplication": "Electronic-Health-Record-System",
+    "requireManagedDevice": true,
+    "requireDeviceCompliance": true
+  },
+  "accessRules": {
+    "trustedClinicalWorkstation": {
+      "authentication": "MFA-or-approved-clinical-SSO",
+      "access": "allow-if-authorized"
+    },
+    "remoteManagedDevice": {
+      "authentication": "phishing-resistant-MFA",
+      "access": "allow-if-compliant"
+    },
+    "unmanagedDevice": {
+      "access": "deny",
+      "logEvent": true
+    }
+  },
+  "monitoring": {
+    "auditLogging": true,
+    "sendEventsToSIEM": true,
+    "continuousRiskEvaluation": true
+  }
+}
